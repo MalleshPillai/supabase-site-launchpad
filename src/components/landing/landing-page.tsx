@@ -17,6 +17,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { APP_TITLE } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { MAD } from "./mad-photos";
+import { MadPolaroid } from "./mad-polaroid";
 import { RevealSection } from "./reveal-section";
 
 const LETTER_BODY = `Darshu,
@@ -192,13 +194,20 @@ export function LandingPage() {
               <EntryCta />
             </div>
           </div>
+          <MadPolaroid
+            src={MAD.hero}
+            alt="Mallesh, Darshu, and our little companion"
+            caption="home with you ♡"
+            className="mx-auto max-w-xs rotate-1 shadow-xl lg:hidden"
+          />
           <HeroVisual />
         </div>
       </section>
 
       <RevealSection className="border-t border-brand-blush/50 px-6 py-20 sm:px-12 lg:px-20">
-        <div className="mx-auto w-full max-w-4xl">
-          <h2 className="font-serif text-center text-3xl font-medium text-brand-burgundy sm:text-4xl">
+        <div className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[1fr_220px] lg:items-start">
+          <div>
+          <h2 className="font-serif text-center text-3xl font-medium text-brand-burgundy sm:text-4xl lg:text-left">
             To my favourite person,
           </h2>
           <div className="letter-paper editorial-paper relative mt-10 rounded-sm p-8 sm:p-12">
@@ -214,6 +223,13 @@ export function LandingPage() {
               {LETTER_BODY}
             </div>
           </div>
+          </div>
+          <MadPolaroid
+            src={MAD.letterAccent}
+            alt="A playful moment together"
+            caption="little smiles"
+            className="mx-auto mt-10 rotate-2 lg:mt-24 lg:mx-0"
+          />
         </div>
       </RevealSection>
 
@@ -222,19 +238,24 @@ export function LandingPage() {
           <h2 className="font-serif max-w-2xl text-3xl font-medium text-brand-burgundy sm:text-4xl">
             Because the little things are never really little.
           </h2>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {WHY_BLOCKS.map((block, i) => (
+          <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.9fr)] lg:items-center">
+            <MadPolaroid
+              src={MAD.memoriesBand}
+              alt="Us being silly together"
+              caption="happiness"
+              className="mx-auto max-w-[240px] -rotate-3"
+            />
+            <div className="grid gap-6 sm:grid-cols-2">
+            {WHY_BLOCKS.map((block) => (
               <div
                 key={block.title}
-                className={cn(
-                  "editorial-paper rounded-2xl p-6 transition-transform hover:-translate-y-0.5",
-                  i === 0 && "xl:col-span-1",
-                )}
+                className="editorial-paper rounded-2xl p-6 transition-transform hover:-translate-y-0.5"
               >
                 <p className="font-display text-2xl text-brand-burgundy">{block.title}</p>
                 <p className="mt-3 text-sm leading-relaxed text-brand-brown">{block.text}</p>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </RevealSection>
@@ -305,8 +326,19 @@ export function LandingPage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="px-6 py-20 sm:px-12 lg:px-20">
-        <div className="mx-auto max-w-3xl text-center">
+      <RevealSection className="relative overflow-hidden px-6 py-20 sm:px-12 lg:px-20">
+        <div
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.12]"
+          style={{ backgroundImage: `url(${MAD.promiseWide})` }}
+          aria-hidden
+        />
+        <div className="relative mx-auto max-w-3xl text-center">
+          <MadPolaroid
+            src={MAD.promiseWide}
+            alt="A day out together"
+            caption="our adventures"
+            className="mx-auto mb-10 max-w-[260px] rotate-1 shadow-xl"
+          />
           <h2 className="font-serif text-3xl font-medium text-brand-burgundy sm:text-4xl">
             Here&apos;s to all the little things we haven&apos;t experienced yet.
           </h2>
@@ -340,19 +372,32 @@ export function LandingPage() {
 
 function HeroVisual() {
   return (
-    <div className="relative hidden animate-fade-in lg:block" style={{ animationDelay: "0.15s" }}>
-      <div className="polaroid absolute -left-4 top-8 w-52 -rotate-6 shadow-xl">
-        <div className="aspect-[4/5] bg-brand-blush/40" />
-        <p className="px-2 pb-3 pt-2 text-center font-accent text-sm">us, someday soon</p>
-      </div>
-      <div className="editorial-paper relative ml-16 mt-16 rounded-2xl p-8">
+    <div className="relative hidden min-h-[480px] animate-fade-in lg:block" style={{ animationDelay: "0.15s" }}>
+      <MadPolaroid
+        src={MAD.hero}
+        alt="Mallesh, Darshu, and our little companion"
+        caption="home with you ♡"
+        className="absolute right-0 top-0 z-20 w-64 rotate-2 shadow-2xl"
+      />
+      <MadPolaroid
+        src={MAD.polaroidA}
+        alt="On the road together"
+        caption="little rides"
+        className="absolute left-0 top-12 z-10 w-48 -rotate-6"
+      />
+      <MadPolaroid
+        src={MAD.polaroidB}
+        alt="Us at home"
+        className="absolute bottom-4 left-20 z-30 w-44 rotate-3"
+      />
+      <MadPolaroid
+        src={MAD.polaroidC}
+        alt="Silly horns and laughter"
+        className="absolute bottom-20 right-8 z-10 w-40 -rotate-2 opacity-95"
+      />
+      <div className="editorial-paper absolute left-1/2 top-[42%] z-0 w-56 -translate-x-1/2 rounded-2xl p-6 opacity-90">
         <p className="text-xs uppercase tracking-[0.2em] text-brand-taupe">A little world</p>
-        <p className="font-display mt-2 text-3xl text-brand-burgundy">made of our little moments</p>
-        <div className="decorative-rule mt-6" />
-        <p className="mt-4 text-sm leading-relaxed text-brand-brown">
-          Photographs, letters, brownies, bucket lists, and every tiny reason to smile — collected in one place, just for
-          us.
-        </p>
+        <p className="font-display mt-2 text-2xl text-brand-burgundy">made of our little moments</p>
       </div>
     </div>
   );

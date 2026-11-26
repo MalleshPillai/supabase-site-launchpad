@@ -8,6 +8,7 @@ import { APP_TAGLINE, APP_TITLE } from "@/lib/navigation";
 import { redirectIfAuthenticated } from "@/lib/auth-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { MAD } from "@/components/landing/mad-photos";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: () => redirectIfAuthenticated(),
@@ -40,13 +41,24 @@ function LoginPage() {
 
   return (
     <div className="landing-bg flex min-h-dvh w-full">
-      <div className="hidden w-1/2 flex-col justify-between border-r border-brand-blush/40 p-12 lg:flex">
-        <div>
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-brand-blush/40 p-12 lg:flex">
+        <div
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url(${MAD.login})` }}
+          aria-hidden
+        />
+        <div className="relative z-10">
           <p className="font-accent text-2xl text-brand-rose">A little something, made with love</p>
           <h1 className="font-serif mt-6 max-w-md text-4xl font-semibold text-brand-burgundy">{APP_TITLE} ♡</h1>
           <p className="mt-4 max-w-sm text-brand-brown">{APP_TAGLINE}</p>
         </div>
-        <p className="font-accent text-xl text-brand-taupe">Come inside — this world is just for us.</p>
+        <figure className="polaroid relative z-10 mx-auto w-full max-w-sm rotate-[-1deg] shadow-xl">
+          <img src={MAD.login} alt="Where our story began" className="aspect-[4/5] w-full object-cover" />
+          <figcaption className="px-4 pb-4 pt-2 text-center font-accent text-lg text-brand-burgundy">
+            little traditions ♡
+          </figcaption>
+        </figure>
+        <p className="relative z-10 font-accent text-xl text-brand-taupe">Come inside — this world is just for us.</p>
       </div>
 
       <div className="flex w-full flex-col items-center justify-center p-6 sm:p-10 lg:w-1/2">
