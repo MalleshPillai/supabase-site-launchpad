@@ -34,6 +34,6 @@ export async function redirectIfAuthenticated() {
     data: { session },
   } = await supabase.auth.getSession();
   if (session) {
-    throw redirect({ to: "/" });
+    throw redirect({ to: "/home" });
   }
 }

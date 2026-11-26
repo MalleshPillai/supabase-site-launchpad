@@ -5,6 +5,7 @@ import { MailPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
+import { LetterEnvelopeCard } from "@/components/app/letter-envelope-card";
 import {
   EmptyState,
   ErrorBlock,
@@ -33,7 +34,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { displayNameFor, fetchPairMembers, usePartner } from "@/lib/pair";
+import { fetchPairMembers, usePartner } from "@/lib/pair";
 
 export const Route = createFileRoute("/_app/letters")({
   component: LettersPage,
@@ -150,7 +151,7 @@ function LettersPage() {
       <PageHeader title="Love Letters" description="Paper hearts, sealed with care — some for now, some for later." />
 
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
-        <ScrapbookCard tape>
+        <ScrapbookCard tape className="letter-paper">
           <h2 className="mb-4 flex items-center gap-2 font-display text-xl">
             <MailPlus className="size-5 text-primary" />
             Write a letter
@@ -248,9 +249,11 @@ function LettersPage() {
               {letterContent.isLoading ? (
                 <LoadingBlock />
               ) : letterContent.data ? (
-                <div className="scrapbook-card rounded-xl border bg-background/80 p-6">
+                <div className="letter-paper editorial-paper animate-fade-in rounded-sm p-6">
                   <p className="font-display text-2xl">{letterContent.data.title}</p>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">{letterContent.data.body}</p>
+                  <p className="mt-4 whitespace-pre-wrap font-accent text-lg leading-relaxed text-foreground/90">
+                    {letterContent.data.body}
+                  </p>
                   <p className="mt-4 text-xs text-muted-foreground">
                     {openLetter.sent_at ? format(new Date(openLetter.sent_at), "MMMM d, yyyy") : "Draft"}
                   </p>
@@ -282,17 +285,11 @@ function LettersList({
 }) {
   if (!list.length) return <p className="text-sm text-muted-foreground">Nothing here yet.</p>;
   return (
-    <ul className="grid gap-3 sm:grid-cols-2">
+    <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {list.map((l) => (
-        <ScrapbookCard key={l.id} className="cursor-pointer transition hover:shadow-md" onClick={() => onOpen(l)}>
-          <p className="capitalize">{l.letter_type.replace(/_/g, " ")}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {l.sender_id === userId ? `To ${displayNameFor(l.recipient_id, members)}` : `From ${displayNameFor(l.sender_id, members)}`}
-          </p>
-          {new Date(l.unlock_at) > new Date() ? (
-            <p className="mt-2 text-xs text-primary">Opens {format(new Date(l.unlock_at), "MMM d, h:mm a")}</p>
-          ) : null}
-        </ScrapbookCard>
+        <li key={l.id}>
+          <LetterEnvelopeCard letter={l} userId={userId} members={members} onOpen={() => onOpen(l)} />
+        </li>
       ))}
     </ul>
   );

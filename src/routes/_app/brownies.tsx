@@ -127,14 +127,20 @@ function BrowniesPage() {
         }
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2">
-        <ScrapbookCard tape>
-          <p className="text-xs text-muted-foreground">Your balance</p>
-          <p className="font-display text-5xl text-primary">{myBalance}</p>
+      <div className="mb-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
+        <ScrapbookCard tape className="bg-gradient-to-br from-primary/10 via-transparent to-transparent p-8">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Your balance</p>
+          <p className="font-serif mt-2 text-6xl font-semibold text-primary tabular-nums lg:text-7xl">{myBalance}</p>
+          <p className="font-accent mt-2 text-lg text-muted-foreground">brownies saved up</p>
         </ScrapbookCard>
-        <ScrapbookCard>
-          <p className="text-xs text-muted-foreground">{partner?.display_name ?? "Partner"}&apos;s balance</p>
-          <p className="font-display text-5xl text-foreground/80">{partnerBalance}</p>
+        <ScrapbookCard className="p-8">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            {partner?.display_name ?? "Partner"}&apos;s balance
+          </p>
+          <p className="font-serif mt-2 text-6xl font-semibold text-foreground/85 tabular-nums lg:text-7xl">
+            {partnerBalance}
+          </p>
+          <p className="font-accent mt-2 text-lg text-muted-foreground">sweet gestures counted</p>
         </ScrapbookCard>
       </div>
 

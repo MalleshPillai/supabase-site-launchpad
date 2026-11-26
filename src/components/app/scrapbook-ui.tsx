@@ -1,6 +1,8 @@
 import { Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function PageHeader({
   title,
@@ -14,7 +16,7 @@ export function PageHeader({
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
+        <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
           {title}
         </h1>
         {description ? (
@@ -104,6 +106,41 @@ export function ErrorBlock({ message }: { message: string }) {
   return (
     <ScrapbookCard className="border-destructive/30 bg-destructive/5 text-center text-sm text-destructive">
       {message}
+    </ScrapbookCard>
+  );
+}
+
+export function StatTile({
+  label,
+  value,
+  href,
+  action,
+  sub,
+  accent,
+  footer,
+}: {
+  label: string;
+  value: string | number;
+  href: string;
+  action: string;
+  sub?: string;
+  accent?: boolean;
+  footer?: ReactNode;
+}) {
+  return (
+    <ScrapbookCard
+      className={cn(
+        "flex flex-col",
+        accent && "border-primary/20 bg-gradient-to-br from-primary/8 to-transparent",
+      )}
+    >
+      <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+      {sub ? <p className="mt-1 text-xs text-muted-foreground">{sub}</p> : null}
+      <p className="font-display mt-2 text-4xl text-primary tabular-nums">{value}</p>
+      {footer}
+      <Button asChild variant="outline" size="sm" className="mt-auto pt-4">
+        <Link to={href}>{action}</Link>
+      </Button>
     </ScrapbookCard>
   );
 }

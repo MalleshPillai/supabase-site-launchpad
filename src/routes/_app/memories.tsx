@@ -174,7 +174,7 @@ function MemoriesPage() {
       {!list.length ? (
         <EmptyState title="No memories yet" description="Upload your first photograph together." />
       ) : (
-        <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+        <div className="columns-1 gap-5 space-y-5 sm:columns-2 lg:columns-3 xl:columns-4">
           {list.map((m, i) => (
             <button
               key={m.id}

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
+import { HappinessJarVisual, PaperSlip } from "@/components/app/happiness-jar-visual";
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader, ScrapbookCard } from "@/components/app/scrapbook-ui";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,7 @@ function HappinessPage() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [randomNote, setRandomNote] = useState<string | null>(null);
+  const [jarOpen, setJarOpen] = useState(false);
 
   const notes = useQuery({
     queryKey: ["happiness"],
@@ -74,8 +76,10 @@ function HappinessPage() {
     const list = notes.data ?? [];
     if (!list.length) {
       setRandomNote(null);
+      setJarOpen(false);
       return;
     }
+    setJarOpen(true);
     const pick = list[Math.floor(Math.random() * list.length)];
     setRandomNote(pick?.content ?? null);
   }
@@ -90,15 +94,13 @@ function HappinessPage() {
       <PageHeader title="Happiness Jar" description="Tiny slips of joy, saved for rainy days." />
 
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
-        <ScrapbookCard tape className="text-center">
-          <div className="mx-auto mb-4 flex h-40 w-32 items-end justify-center rounded-b-3xl border-2 border-primary/40 bg-gradient-to-b from-transparent to-primary/10">
-            <div className="mb-2 font-accent text-4xl text-primary">♡</div>
-          </div>
-          <Button onClick={pullRandom} disabled={!list.length}>
+        <ScrapbookCard tape className="flex flex-col items-center text-center">
+          <HappinessJarVisual open={jarOpen} className="mb-4" />
+          <Button onClick={pullRandom} disabled={!list.length} className="rounded-full">
             Pick a random note
           </Button>
           {randomNote ? (
-            <p className="mt-4 rounded-xl bg-background p-4 text-sm italic shadow-inner">&ldquo;{randomNote}&rdquo;</p>
+            <PaperSlip className="mt-6 max-w-sm">&ldquo;{randomNote}&rdquo;</PaperSlip>
           ) : list.length ? null : (
             <p className="mt-4 text-sm text-muted-foreground">The jar is empty — add the first note.</p>
           )}

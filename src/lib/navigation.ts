@@ -24,7 +24,7 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { title: "Home", to: "/", icon: Home },
+  { title: "Home", to: "/home", icon: Home },
   { title: "Our Memories", to: "/memories", icon: Images },
   { title: "Brownie Bank", to: "/brownies", icon: Candy },
   { title: "Little Rewards", to: "/rewards", icon: Gift },

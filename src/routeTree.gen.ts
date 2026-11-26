@@ -9,14 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppAchievementsRouteImport } from './routes/_app/achievements'
 import { Route as AppBrowniesRouteImport } from './routes/_app/brownies'
 import { Route as AppBucketListRouteImport } from './routes/_app/bucket-list'
 import { Route as AppGamesRouteImport } from './routes/_app/games'
 import { Route as AppHappinessRouteImport } from './routes/_app/happiness'
+import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppLettersRouteImport } from './routes/_app/letters'
 import { Route as AppMemoriesRouteImport } from './routes/_app/memories'
 import { Route as AppNotificationsRouteImport } from './routes/_app/notifications'
@@ -24,6 +25,11 @@ import { Route as AppRewardsRouteImport } from './routes/_app/rewards'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTimelineRouteImport } from './routes/_app/timeline'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -32,11 +38,6 @@ const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppAchievementsRoute = AppAchievementsRouteImport.update({
   id: '/achievements',
@@ -61,6 +62,11 @@ const AppGamesRoute = AppGamesRouteImport.update({
 const AppHappinessRoute = AppHappinessRouteImport.update({
   id: '/happiness',
   path: '/happiness',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHomeRoute = AppHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLettersRoute = AppLettersRouteImport.update({
@@ -95,13 +101,14 @@ const AppTimelineRoute = AppTimelineRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/achievements': typeof AppAchievementsRoute
   '/brownies': typeof AppBrowniesRoute
   '/bucket-list': typeof AppBucketListRoute
   '/games': typeof AppGamesRoute
   '/happiness': typeof AppHappinessRoute
+  '/home': typeof AppHomeRoute
   '/letters': typeof AppLettersRoute
   '/memories': typeof AppMemoriesRoute
   '/notifications': typeof AppNotificationsRoute
@@ -110,22 +117,24 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof AppTimelineRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/achievements': typeof AppAchievementsRoute
   '/brownies': typeof AppBrowniesRoute
   '/bucket-list': typeof AppBucketListRoute
   '/games': typeof AppGamesRoute
   '/happiness': typeof AppHappinessRoute
+  '/home': typeof AppHomeRoute
   '/letters': typeof AppLettersRoute
   '/memories': typeof AppMemoriesRoute
   '/notifications': typeof AppNotificationsRoute
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/timeline': typeof AppTimelineRoute
-  '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/achievements': typeof AppAchievementsRoute
@@ -133,13 +142,13 @@ export interface FileRoutesById {
   '/_app/bucket-list': typeof AppBucketListRoute
   '/_app/games': typeof AppGamesRoute
   '/_app/happiness': typeof AppHappinessRoute
+  '/_app/home': typeof AppHomeRoute
   '/_app/letters': typeof AppLettersRoute
   '/_app/memories': typeof AppMemoriesRoute
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/rewards': typeof AppRewardsRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/timeline': typeof AppTimelineRoute
-  '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/bucket-list'
     | '/games'
     | '/happiness'
+    | '/home'
     | '/letters'
     | '/memories'
     | '/notifications'
@@ -159,21 +169,23 @@ export interface FileRouteTypes {
     | '/timeline'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/login'
     | '/achievements'
     | '/brownies'
     | '/bucket-list'
     | '/games'
     | '/happiness'
+    | '/home'
     | '/letters'
     | '/memories'
     | '/notifications'
     | '/rewards'
     | '/settings'
     | '/timeline'
-    | '/'
   id:
     | '__root__'
+    | '/'
     | '/_app'
     | '/login'
     | '/_app/achievements'
@@ -181,22 +193,30 @@ export interface FileRouteTypes {
     | '/_app/bucket-list'
     | '/_app/games'
     | '/_app/happiness'
+    | '/_app/home'
     | '/_app/letters'
     | '/_app/memories'
     | '/_app/notifications'
     | '/_app/rewards'
     | '/_app/settings'
     | '/_app/timeline'
-    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -210,13 +230,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_app/': {
-      id: '/_app/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
     }
     '/_app/achievements': {
       id: '/_app/achievements'
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/happiness'
       fullPath: '/happiness'
       preLoaderRoute: typeof AppHappinessRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/home': {
+      id: '/_app/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/letters': {
@@ -304,13 +324,13 @@ interface AppRouteChildren {
   AppBucketListRoute: typeof AppBucketListRoute
   AppGamesRoute: typeof AppGamesRoute
   AppHappinessRoute: typeof AppHappinessRoute
+  AppHomeRoute: typeof AppHomeRoute
   AppLettersRoute: typeof AppLettersRoute
   AppMemoriesRoute: typeof AppMemoriesRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppRewardsRoute: typeof AppRewardsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTimelineRoute: typeof AppTimelineRoute
-  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -319,18 +339,19 @@ const AppRouteChildren: AppRouteChildren = {
   AppBucketListRoute: AppBucketListRoute,
   AppGamesRoute: AppGamesRoute,
   AppHappinessRoute: AppHappinessRoute,
+  AppHomeRoute: AppHomeRoute,
   AppLettersRoute: AppLettersRoute,
   AppMemoriesRoute: AppMemoriesRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppRewardsRoute: AppRewardsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTimelineRoute: AppTimelineRoute,
-  AppIndexRoute: AppIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
 }

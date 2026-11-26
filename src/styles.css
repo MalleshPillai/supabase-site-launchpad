@@ -73,12 +73,31 @@
   --font-display: var(--font-display);
   --font-accent: var(--font-accent);
   --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --color-brand-ivory: var(--brand-ivory);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-blush: var(--brand-blush);
+  --color-brand-rose: var(--brand-rose);
+  --color-brand-burgundy: var(--brand-burgundy);
+  --color-brand-brown: var(--brand-brown);
+  --color-brand-taupe: var(--brand-taupe);
+  --color-brand-ink: var(--brand-ink);
 }
 
 :root {
+  --font-serif: "Playfair Display", "Cormorant Garamond", Georgia, serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-accent: "Caveat", cursive;
   --font-sans: "DM Sans", system-ui, sans-serif;
+
+  --brand-ivory: #faf7f2;
+  --brand-cream: #f3ede5;
+  --brand-blush: #ebcfd0;
+  --brand-rose: #c88f96;
+  --brand-burgundy: #633b45;
+  --brand-brown: #725b50;
+  --brand-taupe: #a99a8d;
+  --brand-ink: #30282a;
 
   --radius: 0.875rem;
   --background: oklch(0.98 0.012 85);
@@ -218,4 +237,106 @@
 
 .animate-heart {
   animation: heart-pulse 1.2s ease-in-out infinite;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-heart,
+  .reveal-on-scroll,
+  .float-heart {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+.landing-bg {
+  background-color: var(--brand-ivory);
+  background-image:
+    radial-gradient(ellipse 90% 70% at 15% 0%, oklch(0.88 0.05 15 / 0.35), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 95% 100%, oklch(0.9 0.04 75 / 0.4), transparent 50%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.editorial-paper {
+  background: linear-gradient(165deg, oklch(0.995 0.006 95), oklch(0.97 0.015 85));
+  border: 1px solid oklch(0.88 0.02 55 / 0.7);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.8) inset,
+    0 12px 40px oklch(0.35 0.04 45 / 0.08);
+}
+
+.letter-paper {
+  background-color: #fffef9;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 1.55rem,
+    oklch(0.88 0.03 15 / 0.25) 1.55rem,
+    oklch(0.88 0.03 15 / 0.25) calc(1.55rem + 1px)
+  );
+}
+
+.btn-romantic {
+  background: linear-gradient(135deg, var(--brand-burgundy), oklch(0.48 0.12 12));
+  color: oklch(0.99 0.005 90);
+  border-radius: 9999px;
+  padding: 0.75rem 1.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 20px oklch(0.38 0.1 12 / 0.25);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-romantic:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px oklch(0.38 0.1 12 / 0.32);
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+
+.float-heart {
+  animation: float-soft 4s ease-in-out infinite;
+}
+
+.app-sidebar-rail {
+  background: linear-gradient(180deg, oklch(0.985 0.01 85 / 0.95), oklch(0.96 0.018 80 / 0.92));
+  border-right: 1px solid oklch(0.88 0.02 55 / 0.65);
+}
+
+.decorative-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand-rose), transparent);
+}
+
+.washi-tape {
+  background: linear-gradient(90deg, oklch(0.92 0.04 15 / 0.85), oklch(0.94 0.03 75 / 0.9));
+  box-shadow: 0 1px 2px oklch(0.3 0.03 45 / 0.08);
 }

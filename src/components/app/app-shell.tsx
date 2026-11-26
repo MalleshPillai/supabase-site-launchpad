@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { APP_TITLE, NAV_ITEMS } from "@/lib/navigation";
+import { APP_TAGLINE, APP_TITLE, NAV_ITEMS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchPairMembers, usePartner } from "@/lib/pair";
@@ -17,7 +17,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <nav className="flex flex-col gap-1">
+    <nav className="flex flex-col gap-0.5">
       {NAV_ITEMS.map((item) => {
         const active = pathname === item.to;
         const Icon = item.icon;
@@ -27,10 +27,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             to={item.to}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all",
               active
-                ? "bg-primary/10 font-medium text-primary"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                ? "bg-primary/12 font-medium text-primary shadow-sm"
+                : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
             )}
           >
             <Icon className="size-4 shrink-0" aria-hidden />
@@ -95,17 +95,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   const initials = useMemo(() => displayName.slice(0, 2).toUpperCase(), [displayName]);
 
   return (
-    <div className="scrapbook-bg min-h-screen">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1400px]">
-        <aside className="hidden w-64 shrink-0 flex-col border-r border-border/60 bg-card/50 p-5 backdrop-blur-sm lg:flex">
-          <div className="mb-8">
+    <div className="scrapbook-bg min-h-dvh w-full">
+      <div className="flex min-h-dvh w-full">
+        <aside className="app-sidebar-rail hidden w-[260px] shrink-0 flex-col p-5 backdrop-blur-md xl:w-[280px] lg:flex">
+          <Link to="/home" className="mb-8 block">
             <p className="font-accent text-2xl text-primary">
               {APP_TITLE} <span aria-hidden>♡</span>
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">Our private scrapbook</p>
-          </div>
+            <p className="mt-1 max-w-[200px] text-xs leading-relaxed text-muted-foreground">{APP_TAGLINE}</p>
+          </Link>
           <NavLinks />
-          <div className="mt-auto space-y-4 border-t border-border/60 pt-4">
+          <div className="mt-auto space-y-4 border-t border-border/50 pt-5">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Heart className="size-3.5 text-primary" aria-hidden />
               <span>
@@ -114,9 +114,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Avatar className="size-9 border border-border">
+              <Avatar className="size-10 border border-border">
                 <AvatarImage src={avatarUrl ?? undefined} alt="" />
-                <AvatarFallback>{initials}</AvatarFallback>
+                <AvatarFallback className="bg-brand-blush/30 text-brand-burgundy">{initials}</AvatarFallback>
               </Avatar>
               <Button variant="ghost" size="sm" className="gap-2 text-xs" onClick={() => void handleSignOut()}>
                 <LogOut className="size-3.5" />
@@ -127,27 +127,37 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-background/85 px-4 py-3 backdrop-blur-md lg:px-8">
-            <div className="lg:hidden">
+          <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border/50 bg-background/90 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-10">
+            <div className="flex items-center gap-3 lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" size="icon" className="shrink-0">
                     <Menu className="size-4" />
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72 p-4">
-                  <p className="mb-6 font-accent text-xl text-primary">{APP_TITLE} ♡</p>
+                <SheetContent side="left" className="w-[min(100vw-2rem,300px)] p-5">
+                  <p className="mb-2 font-accent text-xl text-primary">{APP_TITLE} ♡</p>
+                  <p className="mb-6 text-xs text-muted-foreground">{APP_TAGLINE}</p>
                   <NavLinks />
                 </SheetContent>
               </Sheet>
+              <p className="font-display text-lg">
+                {APP_TITLE} <span className="text-primary">♡</span>
+              </p>
             </div>
 
-            <p className="font-display text-lg lg:hidden">
-              {APP_TITLE} <span className="text-primary">♡</span>
+            <p className="hidden font-display text-lg text-muted-foreground lg:block">
+              <span className="text-foreground">{displayName}</span>
+              {partner ? (
+                <>
+                  {" "}
+                  <span className="text-primary">♡</span> {partner.display_name}
+                </>
+              ) : null}
             </p>
 
-            <Link to="/notifications" className="relative rounded-lg p-2 hover:bg-accent">
+            <Link to="/notifications" className="relative rounded-xl p-2.5 transition-colors hover:bg-accent">
               <Bell className="size-5 text-muted-foreground" />
               {unreadCount > 0 ? (
                 <Badge className="absolute -right-0.5 -top-0.5 size-5 justify-center rounded-full p-0 text-[10px]">
@@ -158,10 +168,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           </header>
 
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-10 xl:px-12">{children}</main>
 
           <footer className="border-t border-border/40 px-4 py-4 text-center text-xs text-muted-foreground">
-            Made with love ♡
+            Made with love by Mallesh, for Darshu ♡
           </footer>
         </div>
       </div>
