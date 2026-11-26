@@ -4,7 +4,14 @@ import { requireSession } from "@/lib/auth-guard";
 import { APP_TITLE } from "@/lib/navigation";
 
 export const Route = createFileRoute("/_app")({
-  beforeLoad: () => requireSession(),
+  beforeLoad: async ({ matches }) => {
+    // Pathless layout can participate in `/` matching on some SSR hosts; only guard real app pages.
+    const onAppPage = matches.some(
+      (m) => m.routeId.startsWith("/_app/") && m.routeId !== "/_app",
+    );
+    if (!onAppPage) return;
+    return requireSession();
+  },
   component: AppLayout,
 });
 

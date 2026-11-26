@@ -4,6 +4,8 @@ import { APP_TAGLINE, APP_TITLE } from "@/lib/navigation";
 
 export const Route = createFileRoute("/")({
   component: PublicLanding,
+  // Public route — never run the authenticated app layout guard for `/`.
+  staticData: { access: "public" as const },
   head: () => ({
     meta: [
       { title: `${APP_TITLE} ♡` },

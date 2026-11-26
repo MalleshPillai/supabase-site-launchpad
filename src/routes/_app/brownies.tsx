@@ -10,6 +10,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -67,6 +78,23 @@ function BrowniesPage() {
       setReason("");
       setMessage("");
       await qc.invalidateQueries({ queryKey: ["brownies"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const resetBank = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("reset_brownie_bank");
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Brownie bank reset — balances are back to zero ♡");
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["brownies"] }),
+        qc.invalidateQueries({ queryKey: ["home-dashboard"] }),
+        qc.invalidateQueries({ queryKey: ["notifications-unread"] }),
+        qc.invalidateQueries({ queryKey: ["achievements"] }),
+      ]);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -145,7 +173,34 @@ function BrowniesPage() {
       </div>
 
       <ScrapbookCard>
-        <h2 className="font-display text-lg">Recent activity</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-lg">Recent activity</h2>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" disabled={resetBank.isPending}>
+                Reset brownie bank
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-display">Reset everything?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This sets both balances to zero, clears all brownie transactions, pending reward redemptions, and
+                  brownie-related notifications. It cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep balances</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => resetBank.mutate()}
+                >
+                  Reset to zero
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
         <ul className="mt-4 divide-y divide-border/60">
           {data.data!.txns.map((t) => (
             <li key={t.id} className="flex flex-col gap-1 py-3 text-sm sm:flex-row sm:justify-between">

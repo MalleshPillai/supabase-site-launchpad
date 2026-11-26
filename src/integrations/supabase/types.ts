@@ -1022,6 +1022,7 @@ export type Database = {
       is_relationship_member: { Args: never; Returns: boolean }
       process_due_content_unlocks: { Args: never; Returns: number }
       refresh_pair_achievements: { Args: never; Returns: undefined }
+      reset_brownie_bank: { Args: never; Returns: undefined }
       request_reward: {
         Args: {
           p_idempotency_key: string
