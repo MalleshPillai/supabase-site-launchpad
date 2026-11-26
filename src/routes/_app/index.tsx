@@ -12,6 +12,7 @@ import {
 } from "@/components/app/scrapbook-ui";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDailySurprise } from "@/lib/daily-surprise";
 import { displayNameFor, fetchPairMembers } from "@/lib/pair";
 import { getSignedUrl } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
@@ -35,30 +36,22 @@ function HomePage() {
     queryKey: ["home-dashboard", userId],
     enabled: Boolean(userId),
     queryFn: async () => {
-      const [
-        memoriesRes,
-        lettersRes,
-        balancesRes,
-        bucketRes,
-        achievementsRes,
-        surpriseRes,
-        featuredRes,
-        happinessRes,
-      ] = await Promise.all([
-        supabase.from("memories").select("id, caption, photo_path, memory_date").order("created_at", { ascending: false }).limit(4),
-        supabase.from("letters").select("id, letter_type, sent_at, status").eq("status", "sent").order("sent_at", { ascending: false }).limit(3),
-        supabase.from("brownie_balances").select("user_id, balance"),
-        supabase.from("bucket_list_items").select("id, is_completed"),
-        supabase
-          .from("user_achievements")
-          .select("achievement_code, unlocked_at")
-          .eq("user_id", userId!)
-          .order("unlocked_at", { ascending: false })
-          .limit(4),
-        supabase.rpc("get_daily_surprise"),
-        supabase.from("memories").select("id, caption, photo_path, memory_date").eq("is_featured", true).order("memory_date", { ascending: false }).limit(1).maybeSingle(),
-        supabase.from("happiness_notes").select("id, content").order("created_at", { ascending: false }).limit(1).maybeSingle(),
-      ]);
+      const [memoriesRes, lettersRes, balancesRes, bucketRes, achievementsRes, featuredRes, happinessRes, surprise] =
+        await Promise.all([
+          supabase.from("memories").select("id, caption, photo_path, memory_date").order("created_at", { ascending: false }).limit(4),
+          supabase.from("letters").select("id, letter_type, sent_at, status").eq("status", "sent").order("sent_at", { ascending: false }).limit(3),
+          supabase.from("brownie_balances").select("user_id, balance"),
+          supabase.from("bucket_list_items").select("id, is_completed"),
+          supabase
+            .from("user_achievements")
+            .select("achievement_code, unlocked_at")
+            .eq("user_id", userId!)
+            .order("unlocked_at", { ascending: false })
+            .limit(4),
+          supabase.from("memories").select("id, caption, photo_path, memory_date").eq("is_featured", true).order("memory_date", { ascending: false }).limit(1).maybeSingle(),
+          supabase.from("happiness_notes").select("id, content").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+          fetchDailySurprise(),
+        ]);
 
       const errors = [
         memoriesRes.error,
@@ -66,7 +59,6 @@ function HomePage() {
         balancesRes.error,
         bucketRes.error,
         achievementsRes.error,
-        surpriseRes.error,
         featuredRes.error,
         happinessRes.error,
       ].filter(Boolean);
@@ -90,7 +82,7 @@ function HomePage() {
         bucketTotal: bucketItems.length,
         bucketCompleted: completed,
         achievements: achievementsRes.data ?? [],
-        surprise: surpriseRes.data?.[0] ?? null,
+        surprise,
         featured,
         featuredUrl,
         randomHappiness: happinessRes.data?.content ?? null,
