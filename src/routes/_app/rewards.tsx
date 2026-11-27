@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
@@ -12,7 +13,16 @@ import {
   ScrapbookCard,
 } from "@/components/app/scrapbook-ui";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,11 +43,25 @@ export const Route = createFileRoute("/_app/rewards")({
   head: () => appHeadTitle("Little Rewards"),
 });
 
+const REWARD_CATEGORIES = [
+  "food",
+  "dates",
+  "experiences",
+  "gifts",
+  "surprises",
+  "personal_wishes",
+  "custom",
+] as const;
+
 function RewardsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [confirm, setConfirm] = useState<Tables<"rewards"> | null>(null);
   const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string>(REWARD_CATEGORIES[0]);
+  const [pointsCost, setPointsCost] = useState(10);
 
   const members = useQuery({ queryKey: ["pair-members"], queryFn: fetchPairMembers });
 
@@ -103,6 +127,41 @@ function RewardsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const addReward = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Not signed in");
+      if (pointsCost < 1) throw new Error("Brownie cost must be at least 1");
+      const { error } = await supabase.from("rewards").insert({
+        created_by: user.id,
+        title: title.trim(),
+        description: description.trim(),
+        points_cost: pointsCost,
+        category,
+      });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Reward added to the shop ♡");
+      setTitle("");
+      setDescription("");
+      setPointsCost(10);
+      await qc.invalidateQueries({ queryKey: ["rewards"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeReward = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("rewards").update({ is_active: false }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Reward removed");
+      await qc.invalidateQueries({ queryKey: ["rewards"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (isLoading) return <LoadingBlock />;
   if (error) return <ErrorBlock message="Could not load rewards." />;
 
@@ -119,23 +178,110 @@ function RewardsPage() {
         You have <strong className="text-primary">{balance}</strong> brownies to spend.
       </p>
 
+      <ScrapbookCard className="mb-8" tape>
+        <form
+          className="grid gap-4 md:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            addReward.mutate();
+          }}
+        >
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reward-title">Reward title</Label>
+              <Input
+                id="reward-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Movie night, your pick"
+                required
+                maxLength={120}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reward-description">What’s included?</Label>
+              <Textarea
+                id="reward-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                placeholder="Optional details"
+                maxLength={1000}
+              />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {REWARD_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c.replace(/_/g, " ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reward-points">Brownie cost</Label>
+              <Input
+                id="reward-points"
+                type="number"
+                min={1}
+                max={9999}
+                value={pointsCost}
+                onChange={(e) => setPointsCost(Math.max(1, Number(e.target.value) || 1))}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={addReward.isPending}>
+              Add reward
+            </Button>
+          </div>
+        </form>
+      </ScrapbookCard>
+
       {!rewards.length ? (
-        <EmptyState title="The shop is empty" description="Create rewards together in the database or add them via your admin." />
+        <EmptyState title="The shop is empty" description="Add a reward above — your partner can redeem it with brownies." />
       ) : (
         <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rewards.map((r) => {
             const canAfford = balance >= r.points_cost;
+            const isOwn = r.created_by === user?.id;
             return (
               <ScrapbookCard key={r.id} className="flex flex-col">
-                <p className="font-display text-lg">{r.title}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs capitalize text-muted-foreground">{r.category.replace(/_/g, " ")}</p>
+                    <p className="font-display text-lg">{r.title}</p>
+                  </div>
+                  {isOwn ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Remove reward"
+                      disabled={removeReward.isPending}
+                      onClick={() => removeReward.mutate(r.id)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  ) : null}
+                </div>
                 <p className="mt-2 flex-1 text-sm text-muted-foreground">{r.description || "A little treat."}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Offered by {displayNameFor(r.created_by, members.data)}
+                </p>
                 <p className="mt-3 font-accent text-xl text-primary">{r.points_cost} brownies</p>
                 <Button
                   className="mt-4"
-                  disabled={!canAfford || r.created_by === user?.id}
+                  disabled={!canAfford || isOwn}
                   onClick={() => setConfirm(r)}
                 >
-                  {canAfford ? "Redeem" : "Not enough brownies"}
+                  {isOwn ? "Your reward" : canAfford ? "Redeem" : "Not enough brownies"}
                 </Button>
               </ScrapbookCard>
             );

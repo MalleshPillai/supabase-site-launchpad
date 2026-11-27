@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
@@ -98,6 +98,18 @@ function BucketListPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const removeItem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("bucket_list_items").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Wish removed");
+      await qc.invalidateQueries({ queryKey: ["bucket-list"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (items.isLoading) return <LoadingBlock />;
   if (items.error) return <ErrorBlock message="Could not load bucket list." />;
 
@@ -182,14 +194,25 @@ function BucketListPage() {
                     </p>
                     {item.description ? <p className="mt-1 text-sm text-muted-foreground">{item.description}</p> : null}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={item.is_completed ? "Mark incomplete" : "Mark complete"}
-                    onClick={() => toggleComplete.mutate({ id: item.id, isCompleted: item.is_completed })}
-                  >
-                    <CheckCircle2 className={cn("size-5", item.is_completed && "text-primary")} />
-                  </Button>
+                  <div className="flex shrink-0 gap-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={item.is_completed ? "Mark incomplete" : "Mark complete"}
+                      onClick={() => toggleComplete.mutate({ id: item.id, isCompleted: item.is_completed })}
+                    >
+                      <CheckCircle2 className={cn("size-5", item.is_completed && "text-primary")} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Remove wish"
+                      disabled={removeItem.isPending}
+                      onClick={() => removeItem.mutate(item.id)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               </ScrapbookCard>
             </li>

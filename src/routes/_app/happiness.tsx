@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
@@ -67,6 +68,19 @@ function HappinessPage() {
     onSuccess: async () => {
       toast.success("Note tucked in the jar ♡");
       setContent("");
+      await qc.invalidateQueries({ queryKey: ["happiness"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeNote = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("happiness_notes").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Note removed");
+      setRandomNote(null);
       await qc.invalidateQueries({ queryKey: ["happiness"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -143,18 +157,41 @@ function HappinessPage() {
       {!list.length ? (
         <EmptyState title="No notes yet" description="Write something that made you smile." />
       ) : (
-        <NotesGrid list={list} />
+        <NotesGrid list={list} userId={user?.id} onRemove={(id) => removeNote.mutate(id)} removing={removeNote.isPending} />
       )}
     </div>
   );
 }
 
-function NotesGrid({ list }: { list: { id: string; content: string; category: string }[] }) {
+function NotesGrid({
+  list,
+  userId,
+  onRemove,
+  removing,
+}: {
+  list: { id: string; content: string; category: string; created_by: string }[];
+  userId?: string;
+  onRemove: (id: string) => void;
+  removing: boolean;
+}) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {list.map((n) => (
         <ScrapbookCard key={n.id} className="rotate-0 even:-rotate-1">
-          <p className="text-xs capitalize text-muted-foreground">{n.category.replace(/_/g, " ")}</p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-xs capitalize text-muted-foreground">{n.category.replace(/_/g, " ")}</p>
+            {n.created_by === userId ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Remove note"
+                disabled={removing}
+                onClick={() => onRemove(n.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
+          </div>
           <p className="mt-2 text-sm">{n.content}</p>
         </ScrapbookCard>
       ))}

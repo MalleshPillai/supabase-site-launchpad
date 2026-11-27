@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { appHeadTitle } from "@/routes/_app";
@@ -156,11 +157,12 @@ function TimelinePage() {
                 {ev.created_by === user?.id ? (
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     className="mt-3"
+                    aria-label="Remove event"
                     onClick={() => removeEvent.mutate(ev.id)}
                   >
-                    Remove
+                    <Trash2 className="size-4" />
                   </Button>
                 ) : null}
               </ScrapbookCard>
